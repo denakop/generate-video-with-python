@@ -5,7 +5,8 @@ from services.MariaDb import MariaDb
 
 
 
-
+mariadb = MariaDb()
+database_host_names = mariadb.get_host_names()
 
 # elasticsearch = ElasticSearch()
 # document = elasticsearch.get_document() # get document from elasticsearch
