@@ -31,7 +31,9 @@ class MariaDb:
         return conn.cursor()
 
     def get_host_names(self):
+        host_names = {}
         self.connection.execute("SELECT domain.url, domain.account_id, domain.id FROM domain INNER JOIN auto_ad ON auto_ad.domain_id=domain.id and auto_ad.name = 'slider' GROUP BY domain.id;")
         for url, account_id, id in self.connection:
-            print(f"Url: {url}, Account_id: {account_id}, id: {id}")
+            host_names[account_id] = url
 
+        return host_names
