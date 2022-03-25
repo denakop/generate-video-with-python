@@ -15,7 +15,7 @@ class GenerateVideo:
         each_image_duration = 5  # in secs
         fourcc = cv2.VideoWriter_fourcc(*'XVID')  # define the video codec
 
-        images = [img for img in os.listdir(image_folder) if img.endswith(".jpg")]
+        images = [img for img in os.listdir(image_folder) if img.endswith(".jpeg")]
         frame = cv2.imread(os.path.join(image_folder, images[0]))
         height, width, layers = frame.shape
 
@@ -32,6 +32,6 @@ class GenerateVideo:
     @staticmethod
     def remove_images():
         image_folder = 'assets/images/'
-        images = [img for img in os.listdir(image_folder) if img.endswith(".jpg")]
+        images = [img for img in os.listdir(image_folder) if img.endswith(".jpeg")]
         for image in images:
             os.remove(os.path.join(image_folder, image))

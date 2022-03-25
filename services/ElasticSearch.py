@@ -21,7 +21,8 @@ class ElasticSearch:
 
 
     def get_urls(self):
-        return {'1': [{'key': 'https://sample.denakop.com/examples/xandr-psp-amp.html', 'doc_count': 319},
+        return {
+            '1': [{'key': 'https://sample.denakop.com/examples/xandr-psp-amp.html', 'doc_count': 319},
                       {'key': 'https://sample.denakop.com/examples/implementacao-ad-manager.html', 'doc_count': 102},
                       {'key': 'https://sample.denakop.com/examples/xandr-psp-amp-2.html', 'doc_count': 47},
                       {'key': 'https://sample.denakop.com/examples/denakop-tag.html?denakop_debug=true&pbjs_debug=true',
@@ -87,6 +88,14 @@ class ElasticSearch:
                               'doc_count': 1}, {
                               'key': 'https://semprefamilia.com.br/grafiteiro-responde-a-mensagens-depressivas-em-banheiro-feminino-de-escola-publica/',
                               'doc_count': 1}],
+            '10550': [{'key': 'https://portalcretinos.ig.com.br/todos-falam-que-essa-mulher-tem-20-anos-mas-ninguem-acredita-quando-ela-revela-sua-verdadeira-idade/', 'doc_count': 3},
+                      {'key': 'https://portalcretinos.ig.com.br/equipe-de-linn-lamenta-falecimento-e-sister-continua-sem-saber-nada-dentro-do-bbb22/', 'doc_count': 2},
+                      {'key': 'https://portalcretinos.ig.com.br/bbb22-eliminados-voltarao-ao-programa-entenda/',
+                       'doc_count': 1}, {
+                          'key': 'https://portalcretinos.ig.com.br/bbb22-arthur-aguiar-faz-desabafo-aos-prantos-em-raio-x-e-convocou-seus-fas/',
+                          'doc_count': 1}, {
+                          'key': 'https://portalcretinos.ig.com.br/familia-se-descuida-e-silvio-santos-e-fotografado-sem-os-dentes-em-momento-intimo-internautas-comentam-a-foto/',
+                          'doc_count': 1}],
                 '10056': [{'key': 'https://www.bnews.com.br/ultimasnoticias.html', 'doc_count': 15193},
                           {'key': 'https://www.bnews.com.br/policia/', 'doc_count': 11400}, {
                               'key': 'https://www.bnews.com.br/noticias/policia/jovem-que-pegou-uber-para-ir-shopping-e-desapareceu-e-encontrado.html',
