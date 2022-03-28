@@ -1,11 +1,13 @@
 from collections import defaultdict
 from urllib.parse import urlparse
+from helpers import Helpers
 
 
 class FormatUrls:
     def __init__(self, elastic_document, database_document):
         self.elastic_document = elastic_document
         self.database_document = database_document
+        self.helpers = Helpers
 
     def format_urls(self):
         self.elastic_document = self.format_elastic_document(self.elastic_document)
@@ -17,14 +19,12 @@ class FormatUrls:
         equal_urls = defaultdict(list)
         for key, urls in elastic_document.items():
             url = urlparse(urls[0]).netloc
-            if url.startswith('www.'):
-                url = url[4:]
-
+            url = Helpers.remove_www(url)
             url = 'http://' + url
-
             if int(key) in database_document:
                 if url in database_document[int(key)]:
                     equal_urls[url].append(urls)
+
         return equal_urls
 
 

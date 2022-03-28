@@ -1,9 +1,11 @@
 from modules.Request import Request
 from modules.GenerateVideo import GenerateVideo
+from helpers import Helpers
 from services.ElasticSearch import ElasticSearch
 from services.MariaDb import MariaDb
 from modules.FormatUrls import FormatUrls
 from urllib.parse import urlparse
+import concurrent.futures
 
 import time
 
@@ -30,18 +32,22 @@ def init():
 
 
 def mount_video(urls):
-    request = Request()
-    video_name = None
     for hostname in urls:
         request_time = time.time()
         for url in urls[hostname]:
-            for href in url:
-                print(href)
-                request.get_images(href)
-                video_name = urlparse(href).netloc
+            multi_requests(url)
         print("Request Time %s seconds ---" % (time.time() - request_time))
-        GenerateVideo(video_name)
+        GenerateVideo(Helpers.remove_www(urlparse(hostname).netloc))
 
 
+def multi_requests(urls):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = []
+        for url in urls:
+            futures.append(executor.submit(request.get_images, page=url))
+
+
+request = Request()
 init()
 print("Total Time %s seconds ---" % (time.time() - start_time))
+

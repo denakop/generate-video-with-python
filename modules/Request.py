@@ -3,8 +3,10 @@ import string
 import requests
 import os
 
+from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from PIL import ImageFont, ImageDraw, Image, ImageFile
+from helpers import Helpers
 
 
 class Request:
@@ -12,27 +14,25 @@ class Request:
         self.w = 0
         self.h = 0
         self.count = 0
-        self.page = ''
         self.titleCount = 0
         self.default_url = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
 
     def get_images(self, page):
-        self.page = page
-        htmldata = self.get_data()
+        htmldata = self.get_data(page)
         soup = BeautifulSoup(htmldata, "lxml")
         title = soup.find("meta", property="og:title")['content']
         try:
             image = soup.find("meta", property="og:image")['content']
         except:
             image = self.default_url  # todo add default image
-        self.write_text_in_image(requests.get(image).content, title)
+        self.write_text_in_image(requests.get(image).content, title, page)
 
     @staticmethod
     def random_title():
         letters = string.ascii_lowercase
         return ''.join(random.choice(letters) for i in range(30))
 
-    def write_text_in_image(self, image, title):
+    def write_text_in_image(self, image, title, page):
         ImageFile.LOAD_TRUNCATED_IMAGES = True
         self.titleCount += 1
         image_title = str(self.titleCount)
@@ -58,12 +58,16 @@ class Request:
         title_font = ImageFont.truetype('assets/fonts/PlayfairDisplay-VariableFont_wght.ttf', font_size)
 
         text_w, text_h = editable_image.textsize(title, title_font)
-        print(text_w, text_h)
-        print(w, h)
         shape = ((5, h - 100), (w - 5, h - 10))
         editable_image.rectangle(shape, fill=(0, 0, 0, 180))
         editable_image.text(((w - text_w) // 2, (h - text_h) - 50), title, font=title_font, fill=(255, 255, 255))
-        img.save("assets/images/" + image_title + ".jpeg")
+        dir = urlparse(page).netloc
+        dir = Helpers.remove_www(dir)
+
+        if os.path.isdir('assets/images/' + dir) is False:
+            os.mkdir('assets/images/' + dir)
+
+        img.save("assets/images/" + dir + "/" + image_title + ".jpeg")
         os.remove("assets/temporary/" + image_title + ".jpeg")
 
     @staticmethod
@@ -102,11 +106,11 @@ class Request:
 
         return font_size
 
-    def get_data(self):
+    def get_data(self, page):
         my_session = requests.session()
-        for_cookies = my_session.get(self.page)
+        for_cookies = my_session.get(page)
         cookies = for_cookies.cookies
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0'}
 
-        response = my_session.get(self.page, headers=headers, cookies=cookies)
+        response = my_session.get(page, headers=headers, cookies=cookies)
         return response.text

@@ -9,7 +9,7 @@ class GenerateVideo:
         self.generate_video()
 
     def generate_video(self):
-        image_folder = 'assets/images/'
+        image_folder = 'assets/images/' + self.video_name
         video_name = self.video_name + '.avi'
 
         each_image_duration = 5  # in secs
@@ -29,9 +29,9 @@ class GenerateVideo:
         video.release()
         self.remove_images()
 
-    @staticmethod
-    def remove_images():
-        image_folder = 'assets/images/'
+
+    def remove_images(self):
+        image_folder = 'assets/images/' + self.video_name
         images = [img for img in os.listdir(image_folder) if img.endswith(".jpeg")]
         for image in images:
             os.remove(os.path.join(image_folder, image))
