@@ -32,12 +32,18 @@ def init():
 
 
 def mount_video(urls):
+    account_id = None
     for hostname in urls:
+        count = 0
         request_time = time.time()
         for url in urls[hostname]:
-            multi_requests(url)
+            if count == 0:
+                account_id = url['account_id']
+                count += 1
+            else:
+                multi_requests(url)
         print("Request Time %s seconds ---" % (time.time() - request_time))
-        GenerateVideo(Helpers.remove_www(urlparse(hostname).netloc))
+        GenerateVideo(Helpers.remove_www(urlparse(hostname).netloc), account_id)
 
 
 def multi_requests(urls):

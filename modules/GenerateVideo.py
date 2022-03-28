@@ -1,16 +1,19 @@
 import cv2
-from PIL import Image
 import os
 
 
 class GenerateVideo:
-    def __init__(self, video_name):
+    def __init__(self, video_name, account_id):
+        self.account_id = account_id
         self.video_name = video_name
         self.generate_video()
 
     def generate_video(self):
+        if os.path.isdir('video/' + self.account_id) is False:
+            os.mkdir('video/' + self.account_id)
+
         image_folder = 'assets/images/' + self.video_name
-        video_name = self.video_name + '.avi'
+        video_name = 'video/' + self.account_id + '/' + self.video_name + '.avi'
 
         each_image_duration = 5  # in secs
         fourcc = cv2.VideoWriter_fourcc(*'XVID')  # define the video codec

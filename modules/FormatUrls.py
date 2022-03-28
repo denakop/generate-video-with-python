@@ -23,8 +23,8 @@ class FormatUrls:
             url = 'http://' + url
             if int(key) in database_document:
                 if url in database_document[int(key)]:
+                    equal_urls[url].append({'account_id': key})
                     equal_urls[url].append(urls)
-
         return equal_urls
 
 
