@@ -2,6 +2,7 @@ import random
 import string
 import requests
 import os
+import json
 
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
@@ -15,17 +16,33 @@ class Request:
         self.h = 0
         self.count = 0
         self.titleCount = 0
-        self.default_url = 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png'
 
     def get_images(self, page):
         htmldata = self.get_data(page)
         soup = BeautifulSoup(htmldata, "lxml")
         title = soup.find("meta", property="og:title")['content']
-        try:
-            image = soup.find("meta", property="og:image")['content']
-        except:
-            image = self.default_url  # todo add default image
+        image = None
+
+        if image is None:
+            try:
+                image = soup.find("meta", property="og:image")['content']
+            except:
+                image = 'none'  # todo add default image
         self.write_text_in_image(requests.get(image).content, title, page)
+
+    # slow method
+    @staticmethod
+    def get_url_image(soup):
+        yoast = json.loads("".join(soup.find("script", {"type": "application/ld+json"}).contents))
+
+        if '@graph' in yoast:
+            for item in yoast['@graph']:
+                if item['@type'] == 'ImageObject':
+                    return item['url']
+        elif 'image' in yoast:
+            return yoast['image']['url']
+
+        return None
 
     @staticmethod
     def random_title():
@@ -43,7 +60,7 @@ class Request:
         try:
             img = Image.open("assets/temporary/" + image_title + ".jpeg").convert('RGB')
         except:
-            img = Image.open(requests.get(self.default_url, stream=True).raw).convert('RGB')
+            img = Image.open("assets/no-image.jpg").convert('RGB')
 
         if self.count == 0:
             w, h = img.size
@@ -66,8 +83,8 @@ class Request:
 
         if os.path.isdir('assets/images/' + dir) is False:
             os.mkdir('assets/images/' + dir)
-
         img.save("assets/images/" + dir + "/" + image_title + ".jpeg")
+
         os.remove("assets/temporary/" + image_title + ".jpeg")
 
     @staticmethod
