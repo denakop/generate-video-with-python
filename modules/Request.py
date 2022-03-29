@@ -18,17 +18,24 @@ class Request:
         self.titleCount = 0
 
     def get_images(self, page):
-        htmldata = self.get_data(page)
+        try:
+            htmldata = self.get_data(page)
+        except:
+            return None
+
         soup = BeautifulSoup(htmldata, "lxml")
         title = soup.find("meta", property="og:title")['content']
         image = None
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0'}
 
         if image is None:
             try:
                 image = soup.find("meta", property="og:image")['content']
+                image = requests.get(image, headers=headers).content
             except:
-                image = 'none'  # todo add default image
-        self.write_text_in_image(requests.get(image).content, title, page)
+                image = None  # todo add default image
+
+        self.write_text_in_image(image, title, page)
 
     # slow method
     @staticmethod
@@ -54,12 +61,12 @@ class Request:
         self.titleCount += 1
         image_title = str(self.titleCount)
 
-        with open('assets/temporary/' + image_title + ".jpeg", 'wb') as handler:
-            handler.write(image)
+        if image is not None:
+            with open('assets/temporary/' + image_title + ".jpeg", 'wb') as handler:
+                handler.write(image)
 
-        try:
             img = Image.open("assets/temporary/" + image_title + ".jpeg").convert('RGB')
-        except:
+        else:
             img = Image.open("assets/no-image.jpg").convert('RGB')
 
         if self.count == 0:
@@ -86,6 +93,8 @@ class Request:
         img.save("assets/images/" + dir + "/" + image_title + ".jpeg")
 
         os.remove("assets/temporary/" + image_title + ".jpeg")
+
+        return True
 
     @staticmethod
     def get_font_size(text, font_name, width, height, img_draw):

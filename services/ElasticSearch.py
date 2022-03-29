@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from elasticsearch import Elasticsearch
 from dotenv import load_dotenv
 
@@ -12,13 +12,11 @@ class ElasticSearch:
         self.host = os.getenv('ELASTICSEARCH_HOSTS')
         self.id = os.getenv('ELASTICSEARCH_API_ID')
         self.key = os.getenv('ELASTICSEARCH_API_KEY')
-        self.max_documents = '1000'
-        # self.connect() # connect to elasticsearch
+        self.max_documents = '10'
+        self.connect() # connect to elasticsearch
 
     def connect(self):
         self.es = Elasticsearch(self.host, verify_certs=False, request_timeout=100, api_key=(self.id, self.key))
-
-
 
     def get_urls(self):
         return {
@@ -321,23 +319,40 @@ class ElasticSearch:
         query = self.get_query()
         after_key = None
         urls = {}
-        while True:
-            if after_key is not None:
-                query['aggs']['account']['composite']['after'] = {'accountId': after_key}
+        account_id = os.getenv('ACCOUNT_ID') or None
 
+        if  account_id is None:
+            while True:
+                if after_key is not None:
+                    query['aggs']['account']['composite']['after'] = {'accountId': after_key}
+
+                response = self.es.search(index='console-' + year + '.' + month, body=query, size=self.max_documents)
+                for buckets in response['aggregations']['account']['buckets']:
+                    urls[buckets['key']['accountId']] = buckets['href']['buckets']
+                if 'after_key' in response['aggregations']['account']:
+                    after_key = response['aggregations']['account']['after_key']['accountId']
+                else:
+                    break
+        else:
+            query['query']['bool']['filter'].append({'term': {'accountId': account_id}})
             response = self.es.search(index='console-' + year + '.' + month, body=query, size=self.max_documents)
             for buckets in response['aggregations']['account']['buckets']:
                 urls[buckets['key']['accountId']] = buckets['href']['buckets']
-                print(urls)
-            if 'after_key' in response['aggregations']['account']:
-                after_key = response['aggregations']['account']['after_key']['accountId']
-            else:
-                break
 
         return urls
 
     @staticmethod
     def get_query():
+        date = datetime.now()
+        date = date.replace(microsecond=00, second=59, minute=59, hour=23)
+        date = date.isoformat()
+        date = date + '-03:00'
+
+        date_less_three_days = datetime.now() - timedelta(days=3)
+        date_less_three_days = date_less_three_days.replace(microsecond=00, second=00, minute=00, hour=00)
+        date_less_three_days = date_less_three_days.isoformat()
+        date_less_three_days = date_less_three_days + '-03:00'
+
         query = {
             "track_total_hits": False,
             "query": {
@@ -346,8 +361,8 @@ class ElasticSearch:
                         {
                             "range": {
                                 "date": {
-                                    "gte": "2022-03-01T00:00:00-03:00",
-                                    "lte": "2022-03-22T23:59:59-03:00"
+                                    "gte": date_less_three_days,
+                                    "lte": date,
                                 }
                             }
                         },
@@ -388,7 +403,7 @@ class ElasticSearch:
                         "href": {
                             "terms": {
                                 "field": "pageUrl.href",
-                                "size": 5
+                                "size": 10
                             }
                         }
                     }

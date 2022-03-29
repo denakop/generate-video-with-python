@@ -1,4 +1,6 @@
 from dotenv import load_dotenv
+from datetime import datetime
+
 import os
 import mariadb
 import sys
@@ -23,6 +25,7 @@ class MariaDb:
                 host=os.getenv("DATABASE_HOST"),
                 port=int(os.getenv("DATABASE_PORT")),
                 database=os.getenv("DATABASE_NAME"),
+                autocommit=True,
 
             )
         except mariadb.Error as e:
@@ -31,9 +34,15 @@ class MariaDb:
         return conn.cursor()
 
     def get_host_names(self):
-        host_names = {}
-        self.connection.execute("SELECT domain.url, domain.account_id, domain.id FROM domain INNER JOIN auto_ad ON auto_ad.domain_id=domain.id and auto_ad.name = 'slider' GROUP BY domain.id;")
-        for url, account_id, id in self.connection:
-            host_names[account_id] = url
+        host_names = []
+        self.connection.execute(
+            "SELECT domain.url, domain.account_id, domain.id, domain.video_date FROM domain INNER JOIN auto_ad ON auto_ad.domain_id=domain.id and auto_ad.name = 'slider' GROUP BY domain.id;")
+        for url, account_id, id, video_date in self.connection:
+            host_names.append({account_id: {'url': url, 'id': id, 'video_date': video_date}})
 
         return host_names
+
+    def update_video_date_in_domain(self, hostname):
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        url = "http://" + hostname
+        self.connection.execute(f"UPDATE domain SET video_date = '{date}' WHERE url = '{url}'")

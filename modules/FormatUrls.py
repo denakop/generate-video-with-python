@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import datetime, timedelta
 from urllib.parse import urlparse
 from helpers import Helpers
 
@@ -16,15 +17,22 @@ class FormatUrls:
     # function to get only equal urls
     @staticmethod
     def equals_urls(elastic_document, database_document):
+        date_less_three_days = datetime.now() - timedelta(days=3)
+        date_less_three_days = date_less_three_days.date()
         equal_urls = defaultdict(list)
         for key, urls in elastic_document.items():
             url = urlparse(urls[0]).netloc
             url = Helpers.remove_www(url)
             url = 'http://' + url
-            if int(key) in database_document:
-                if url in database_document[int(key)]:
-                    equal_urls[url].append({'account_id': key})
-                    equal_urls[url].append(urls)
+            for item in database_document:
+                if int(key) in item:
+                    if item[int(key)]['url'] == url:
+                        if item[int(key)]['video_date'] is None:
+                            equal_urls[url].append({'account_id': key})
+                            equal_urls[url].append(urls)
+                        elif item[int(key)]['video_date'] > date_less_three_days:
+                            equal_urls[url].append({'account_id': key})
+                            equal_urls[url].append(urls)
         return equal_urls
 
 

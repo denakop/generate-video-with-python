@@ -1,3 +1,5 @@
+import os
+
 from modules.Request import Request
 from modules.GenerateVideo import GenerateVideo
 from helpers import Helpers
@@ -5,8 +7,9 @@ from services.ElasticSearch import ElasticSearch
 from services.MariaDb import MariaDb
 from modules.FormatUrls import FormatUrls
 from urllib.parse import urlparse
-import concurrent.futures
+from os import path
 
+import concurrent.futures
 import time
 
 start_time = time.time()
@@ -25,10 +28,10 @@ def init():
     # format urls to get hostnames equal to database hostnames
     format_urls = FormatUrls(document, database_host_names)
     urls = format_urls.format_urls()
-    try:
-        mount_video(urls)
-    except Exception as e:
-        print(e)
+    # try:
+    mount_video(urls)
+    # except Exception as e:
+    #     print(e)
 
 
 def mount_video(urls):
@@ -42,8 +45,12 @@ def mount_video(urls):
                 count += 1
             else:
                 multi_requests(url)
-        print("Request Time %s seconds ---" % (time.time() - request_time))
-        GenerateVideo(Helpers.remove_www(urlparse(hostname).netloc), account_id)
+        url_host_name = Helpers.remove_www(urlparse(hostname).netloc)
+        path_images = "assets/images/" + url_host_name
+        if path.exists(path_images):
+            if os.listdir():
+                GenerateVideo(url_host_name, account_id)
+                print("Request Time %s seconds ---" % (time.time() - request_time))
 
 
 def multi_requests(urls):
