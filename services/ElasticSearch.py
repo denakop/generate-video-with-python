@@ -328,7 +328,14 @@ class ElasticSearch:
 
                 response = self.es.search(index='console-' + year + '.' + month, body=query, size=self.max_documents)
                 for buckets in response['aggregations']['account']['buckets']:
-                    urls[buckets['key']['accountId']] = buckets['href']['buckets']
+                    urls_array = []
+                    account_id = buckets['key']['accountId']
+                    for hostname in buckets['hostname']['buckets']:
+                        url_hostname = hostname['key']
+                        for path_name in hostname['pathname']['buckets']:
+                            url = 'https://' + url_hostname + path_name['key']
+                            urls_array.append(url)
+                    urls[account_id] = urls_array
                 if 'after_key' in response['aggregations']['account']:
                     after_key = response['aggregations']['account']['after_key']['accountId']
                 else:
@@ -337,12 +344,18 @@ class ElasticSearch:
             query['query']['bool']['filter'].append({'term': {'accountId': account_id}})
             response = self.es.search(index='console-' + year + '.' + month, body=query, size=self.max_documents)
             for buckets in response['aggregations']['account']['buckets']:
-                urls[buckets['key']['accountId']] = buckets['href']['buckets']
+                urls_array = []
+                account_id = buckets['key']['accountId']
+                for hostname in buckets['hostname']['buckets']:
+                    url_hostname = hostname['key']
+                    for path_name in hostname['pathname']['buckets']:
+                        url = 'https://' + url_hostname + path_name['key']
+                        urls_array.append(url)
+                urls[account_id] = urls_array
 
         return urls
 
-    @staticmethod
-    def get_query():
+    def get_query(self):
         date = datetime.now()
         date = date.replace(microsecond=00, second=59, minute=59, hour=23)
         date = date.isoformat()
@@ -388,7 +401,7 @@ class ElasticSearch:
             "aggs": {
                 "account": {
                     "composite": {
-                        "size": 10,
+                        "size": self.max_documents,
                         "sources": [
                             {
                                 "accountId": {
@@ -400,10 +413,18 @@ class ElasticSearch:
                         ]
                     },
                     "aggs": {
-                        "href": {
+                        "hostname": {
                             "terms": {
-                                "field": "pageUrl.href",
-                                "size": 10
+                                "field": "pageUrl.hostname",
+                                "size": 1
+                            },
+                            "aggs": {
+                                "pathname": {
+                                    "terms": {
+                                        "field": "pageUrl.pathname",
+                                        "size": 5
+                                    }
+                                }
                             }
                         }
                     }

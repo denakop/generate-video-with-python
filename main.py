@@ -22,8 +22,8 @@ def init():
 
     # init and get urls from elasticsearch
     elasticsearch = ElasticSearch()
-    # document = elasticsearch.get_document() # get document from elasticsearch
-    document = elasticsearch.get_urls()  # test to get urls from elasticsearch without request
+    document = elasticsearch.get_document() # get document from elasticsearch
+    # document = elasticsearch.get_urls()  # test to get urls from elasticsearch without request
 
     # format urls to get hostnames equal to database hostnames
     format_urls = FormatUrls(document, database_host_names)

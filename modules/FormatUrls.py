@@ -41,5 +41,5 @@ class FormatUrls:
         formatted_urls = defaultdict(list)
         for account_id, url_buckets in urls.items():
             for url_bucket in url_buckets:
-                formatted_urls[account_id].append(url_bucket['key'])
+                formatted_urls[account_id].append(url_bucket)
         return formatted_urls
