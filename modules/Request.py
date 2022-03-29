@@ -54,8 +54,8 @@ class Request:
         img = img.resize((self.w, self.h), Image.ANTIALIAS)
         editable_image = ImageDraw.Draw(img, 'RGBA')
         w, h = img.size
-        font_size = self.get_font_size(title, 'assets/fonts/PlayfairDisplay-VariableFont_wght.ttf', w, h, editable_image) - 1
-        title_font = ImageFont.truetype('assets/fonts/PlayfairDisplay-VariableFont_wght.ttf', font_size)
+        font_size = self.get_font_size(title, 'assets/fonts/times.ttf', w, h, editable_image) - 1
+        title_font = ImageFont.truetype('assets/fonts/times.ttf', font_size)
 
         text_w, text_h = editable_image.textsize(title, title_font)
         shape = ((5, h - 100), (w - 5, h - 10))
