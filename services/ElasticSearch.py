@@ -12,7 +12,7 @@ class ElasticSearch:
         self.host = os.getenv('ELASTICSEARCH_HOSTS')
         self.id = os.getenv('ELASTICSEARCH_API_ID')
         self.key = os.getenv('ELASTICSEARCH_API_KEY')
-        self.max_documents = '10'
+        self.max_documents = '1000'
         self.connect() # connect to elasticsearch
 
     def connect(self):
