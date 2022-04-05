@@ -13,7 +13,7 @@ class GenerateVideo:
             os.mkdir('video/' + self.account_id)
 
         image_folder = 'assets/images/' + self.video_name
-        video_name = 'video/' + self.account_id + '/' + self.video_name + '.avi'
+        video_name = 'video/' + self.account_id + '/' + self.video_name + '.mp4'
 
         each_image_duration = 5  # in secs
         fourcc = cv2.VideoWriter_fourcc(*'XVID')  # define the video codec
