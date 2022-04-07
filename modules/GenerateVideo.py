@@ -16,7 +16,7 @@ class GenerateVideo:
         video_name = 'video/' + self.account_id + '/' + self.video_name + '.mp4'
 
         each_image_duration = 5  # in secs
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')  # define the video codec
+        fourcc = cv2.VideoWriter_fourcc(*'MP4V')  # define the video codec
 
         images = [img for img in os.listdir(image_folder) if img.endswith(".jpeg")]
         frame = cv2.imread(os.path.join(image_folder, images[0]))
