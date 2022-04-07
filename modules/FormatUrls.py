@@ -21,7 +21,7 @@ class FormatUrls:
         date_less_three_days = datetime.now() - timedelta(days=3)
         date_less_three_days = date_less_three_days.date()
         equal_urls = defaultdict(list)
-        jenkins = Jenkins()
+        # jenkins = Jenkins()
         for key, urls in elastic_document.items():
             url = urlparse(urls[0]).netloc
             url = Helpers.remove_www(url)
@@ -32,7 +32,7 @@ class FormatUrls:
                         if item[int(key)]['video_date'] is None:
                             equal_urls[url].append({'account_id': key})
                             equal_urls[url].append(urls)
-                            jenkins.send_request_to_jenkins(account_id=key)
+                            # jenkins.send_request_to_jenkins(account_id=key)
                         elif item[int(key)]['video_date'] > date_less_three_days:
                             equal_urls[url].append({'account_id': key})
                             equal_urls[url].append(urls)

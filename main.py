@@ -29,6 +29,7 @@ def init():
     format_urls = FormatUrls(document, database_host_names)
     urls = format_urls.format_urls()
     # try:
+    print("Começando requests")
     mount_video(urls)
     # except Exception as e:
     #     print(e)
