@@ -1,18 +1,20 @@
 # Generate Video With Python
 
+Python >= 3.0.0
+
 ## Installation
 
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install.
 
 ```bash
-pip install
+pip install -r requirements.txt
 ```
 
 ## Usage
 Para utilizar o script basta, rodar a main do script.
-Que vai buildar o video para todos os clientes, caso precise
-gerar para somente um cliente passe o account_id no env
-```python
 
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
+```bash
+python3 main.py
+```
+
+Para fazer o build do vídeo apenas para um cliente expecifico utilize a variável de ambiente `ACCOUNT_ID`.
