@@ -1,0 +1,49 @@
+def notifySlack(String buildstatus = 'STARTED'){
+    // Build status of null means sucess in pipeline
+    buildstatus = buildstatus ?: 'SUCCESS'
+
+    def color
+
+    if (buildStatus == 'STARTED') {
+      color = '#D4DADF'
+    } else if (buildStatus == 'SUCCESS') {
+      color = '#BDFFC3'
+    } else if (buildStatus == 'UNSTABLE') {
+      color = '#FFFE89'
+    } else {
+      color = '#FF9FA1'
+    }
+
+    def msg = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
+
+    slackSend(color: color, message: msg)
+}
+
+node{
+    try{
+        notifySlack()
+
+        stage('Checkout Project'){
+            checkout([
+                $class: 'GitSCM',
+                branches: [[name: '*/main']],
+                doGenerateSubmoduleConfigurations: false,
+                extensions: [[$class: 'CleanCheckout']],
+                submoduleCfg: [],
+                userRemoteConfigs: [[credentialsId: 'git-generate-video', url: 'git@github.com:denakop/generate-video-with-python.git']]
+            ])    
+        }
+
+        stage('Build'){
+            ansiblePlaybook(
+                playbook: '/var/lib/jenkins/ansible/generate-video-with-python.yaml',
+                inventory: '/var/lib/jenkins/ansible/inventory'
+            )
+        }
+    } catck (e) {
+        currentBuild.result = 'FAILURE'
+        throw e
+    } finally {
+        notifySlack(currentBuild.result)
+    }
+}
