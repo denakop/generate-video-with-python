@@ -1,28 +1,6 @@
-def notifySlack(String buildstatus = 'STARTED'){
-    // Build status of null means sucess in pipeline
-    buildstatus = buildstatus ?: 'SUCCESS'
-
-    def color
-
-    if (buildStatus == 'STARTED') {
-      color = '#D4DADF'
-    } else if (buildStatus == 'SUCCESS') {
-      color = '#BDFFC3'
-    } else if (buildStatus == 'UNSTABLE') {
-      color = '#FFFE89'
-    } else {
-      color = '#FF9FA1'
-    }
-
-    def msg = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
-
-    slackSend(color: color, message: msg)
-}
-
-node{
+node('generate-video-aws'){
     try{
-        notifySlack()
-
+        
         stage('Checkout Project'){
             checkout([
                 $class: 'GitSCM',
@@ -34,16 +12,39 @@ node{
             ])    
         }
 
-        stage('Build'){
-            ansiblePlaybook(
-                playbook: '/var/lib/jenkins/ansible/generate-video-with-python.yaml',
-                inventory: '/var/lib/jenkins/ansible/inventory'
-            )
+        stage('Build') {
+          withAWS(credentials: 'jenkins-aws') {
+            withEnv([
+                'ELASTICSEARCH_HOSTS=$ELASTICSEARCH_HOSTS', 
+                'ELASTICSEARCH_API_ID=$ELASTICSEARCH_API_ID', 
+                'ELASTICSEARCH_API_KEY=$ELASTICSEARCH_API_KEY', 
+                'DATABASE_HOST=$DATABASE_HOST',
+                'DATABASE_PORT=$DATABASE_PORT',
+                'DATABASE_USER=$DATABASE_USER',
+                'DATABASE_PASSWORD=$DATABASE_PASSWORD',
+                'DATABASE_NAME=$DATABASE_NAME',
+                'JENKINS_URL=$JENKINS_URL',
+                'JENKINS_USERNAME=$JENKINS_USERNAME',
+                'JENKINS_PASSWORD=$JENKINS_PASSWORD',
+                'ACCOUNT_ID=$ACCOUNT_ID']) {
+              echo env.ACCOUNT_ID
+            }
+            sh """#!/bin/bash
+                 pwd && \
+                 cd /home/ubuntu/workspace/generate-video-with-python-master-prod && \
+                 ls && \
+                 pip install -r requirements.txt --user && \
+                 python3 main.py && \
+                 cd video && \
+                 pwd &&  
+            """
+          }
         }
-    } catck (e) {
-        currentBuild.result = 'FAILURE'
+
+    } catch (e) {
+        echo e
         throw e
     } finally {
-        notifySlack(currentBuild.result)
+        echo 'finally'
     }
 }
