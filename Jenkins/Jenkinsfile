@@ -1,5 +1,27 @@
+def notifySlack(String buildStatus = 'STARTED') {
+    // Build status of null means success.
+    buildStatus = buildStatus ?: 'SUCCESS'
+
+    def color
+
+    if (buildStatus == 'STARTED') {
+        color = '#D4DADF'
+    } else if (buildStatus == 'SUCCESS') {
+        color = '#BDFFC3'
+    } else if (buildStatus == 'UNSTABLE') {
+        color = '#FFFE89'
+    } else {
+        color = '#FF9FA1'
+    }
+
+    def msg = "${buildStatus}: `${env.JOB_NAME}` #${env.BUILD_NUMBER}:\n${env.BUILD_URL}"
+
+    slackSend(color: color, message: msg)
+}
+
 node('generate-video-aws'){
     try{
+        notifySlack()
         
         stage('Checkout Project'){
             checkout([
@@ -31,20 +53,19 @@ node('generate-video-aws'){
             }
             sh """#!/bin/bash
                  pwd && \
-                 cd /home/ubuntu/workspace/generate-video-with-python-master-prod && \
                  ls && \
                  pip install -r requirements.txt --user && \
                  python3 main.py && \
-                 cd video && \
-                 pwd &&  
+                 sudo rsync -rzq -e "ssh -o StrictHostKeyChecking=no -i /opt/ssh/devops.pem -p 9960" --progress video/ jenkins@66.165.234.226:/var/www/generate-video-with-python && \
+                 sudo ssh -i /opt/ssh/devops.pem -p 9960 jenkins@66.165.234.226 sudo chown -R nginx:nginx /var/www/generate-video-with-python                 
             """
           }
         }
 
     } catch (e) {
-        echo e
-        throw e
-    } finally {
-        echo 'finally'
-    }
+            currentBuild.result = 'FAILURE'
+            throw e
+        } finally {
+            notifySlack(currentBuild.result)
+        }
 }
