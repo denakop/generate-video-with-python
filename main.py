@@ -17,12 +17,15 @@ start_time = time.time()
 
 def init():
     # init and get hostnames with slider in console database
+    print("Init")
     mariadb = MariaDb()
     database_host_names = mariadb.get_host_names()
+    print("Database Host Names: %s" % database_host_names)
 
     # init and get urls from elasticsearch
     elasticsearch = ElasticSearch()
     document = elasticsearch.get_document() # get document from elasticsearch
+    print("Elasticsearch Document: %s" % document)
     # document = elasticsearch.get_urls()  # test to get urls from elasticsearch without request
 
     # format urls to get hostnames equal to database hostnames
