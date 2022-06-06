@@ -16,6 +16,19 @@ start_time = time.time()
 
 
 def init():
+    # before start, check if the folders exists and remove it if it does
+    if path.exists("assets/images/"):
+        os.system("rm -rf assets/images/")
+    if path.exists("assets/temporary/"):
+        os.system("rm -rf assets/temporary/")
+    if path.exists("video/"):
+        os.system("rm -rf video/")
+
+    #create folders
+    os.makedirs("assets/images/", exist_ok=True)
+    os.makedirs("assets/temporary/", exist_ok=True)
+    os.makedirs("./video/", exist_ok=True)
+
     # init and get hostnames with slider in console database
     print("Init")
     mariadb = MariaDb()
