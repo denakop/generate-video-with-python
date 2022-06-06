@@ -1,6 +1,6 @@
 # Generate Video With Python
 
-Python >= 3.0.0
+Python >= 3.8.0
 
 ## Installation
 

@@ -51,14 +51,14 @@ node('generate-video-aws'){
                 'ACCOUNT_ID=$ACCOUNT_ID']) {
               echo env.ACCOUNT_ID
             }
-            sh """#!/bin/bash
-                 pwd && \
-                 ls && \
-                 pip install -r requirements.txt --user && \
-                 python3 main.py && \
-                 sudo rsync -rzq -e "ssh -o StrictHostKeyChecking=no -i /opt/ssh/devops.pem -p 9960" --progress video/ jenkins@66.165.234.226:/var/www/generate-video-with-python && \
-                 sudo ssh -i /opt/ssh/devops.pem -p 9960 jenkins@66.165.234.226 sudo chown -R nginx:nginx /var/www/generate-video-with-python                 
-            """
+            
+            ansiblePlaybook( 
+                playbook: '/home/ubuntu/ansible/generate-video-with-python.yaml',
+                inventory: '/home/ubuntu/ansible/inventory',
+                extraVars: [
+                    aws_access_key: '${AWS_ACCESS_KEY}',
+                    aws_secret_key: '${AWS_SECRET_KEY}'
+            ])
           }
         }
 
