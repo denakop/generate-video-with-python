@@ -19,7 +19,7 @@ def notifySlack(String buildStatus = 'STARTED') {
     slackSend(color: color, message: msg)
 }
 
-node('generate-video-aws'){
+node('jenkins-ubuntu-slave'){
     try{
         notifySlack()
         
@@ -54,11 +54,8 @@ node('generate-video-aws'){
             
             ansiblePlaybook( 
                 playbook: '/home/ubuntu/ansible/generate-video-with-python.yaml',
-                inventory: '/home/ubuntu/ansible/inventory',
-                extraVars: [
-                    aws_access_key: '${AWS_ACCESS_KEY}',
-                    aws_secret_key: '${AWS_SECRET_KEY}'
-            ])
+                inventory: '/home/ubuntu/ansible/inventory'
+            )
           }
         }
 
