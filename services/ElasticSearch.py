@@ -16,7 +16,7 @@ class ElasticSearch:
         self.connect() # connect to elasticsearch
 
     def connect(self):
-        self.es = Elasticsearch(self.host, verify_certs=False, request_timeout=100, api_key=(self.id, self.key))
+        self.es = Elasticsearch(self.host, verify_certs=False, request_timeout=10000, api_key=(self.id, self.key))
 
     def get_urls(self):
         return {
