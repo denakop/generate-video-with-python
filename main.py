@@ -33,7 +33,6 @@ def init():
     print("Init")
     mariadb = MariaDb()
     database_host_names = mariadb.get_host_names()
-    print("Database Host Names: %s" % database_host_names)
 
     # init and get urls from elasticsearch
     elasticsearch = ElasticSearch()
